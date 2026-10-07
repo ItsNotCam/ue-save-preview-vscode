@@ -3,8 +3,10 @@
 Open Unreal Engine `.sav` files (GVAS) in VS Code as normal JSON documents: syntax highlighting, folding, search and
 outline all work. Edit the JSON and press **Ctrl+S** to write it back into the `.sav`.
 
-Conversion is done by [UeSaveConverter](https://github.com/CrystalFerrai/UeSaveConverter) by Crystal Ferrai, which is
-bundled in the extension.
+Conversion is done by a patched copy of [UeSaveConverter](https://github.com/CrystalFerrai/UeSaveConverter) by Crystal
+Ferrai, bundled in the extension (source and change list in [converter/](converter/README-VENDORED.md)). Anything it
+doesn't understand (unknown property types, game-specific native structs) is kept as exact raw bytes, shown as
+`{ "$RawReason": ..., "$RawBase64": ... }`, so every GVAS save opens and saves back byte-identical.
 
 ## How it works
 
@@ -13,8 +15,8 @@ bundled in the extension.
 - **Saving** checks that the JSON is valid, converts it to a temporary `.sav`, backs up the original, then replaces it.
   If any step fails, the original file is left alone.
 - If the game rewrites the `.sav` while it's open, the document reloads.
-- If a save can't be converted (some games use custom, encrypted or compressed formats), the tab shows the converter's
-  error output, with **Open as binary** and **Retry** buttons.
+- Files that aren't GVAS at all (some games wrap saves in their own encrypted, compressed or custom container) show
+  the converter's error output, with **Open as binary** and **Retry** buttons.
 - To open a `.sav` with a different editor, right-click its tab → **Reopen Editor With…**. To change the default,
   set `workbench.editorAssociations`.
 
@@ -43,16 +45,12 @@ bundled in the extension.
 
 ```powershell
 npm install
-npm run fetch-converter   # downloads the latest UeSaveConverter release into bin/
-npm test                  # end-to-end tests in a downloaded VS Code build
+npm run build-converter   # builds converter/ (patched UeSaveConverter) into bin/; needs the .NET 8+ SDK
+npm test                  # converter round-trips + end-to-end tests in a downloaded VS Code build
 npm run package           # -> ue-save-preview-<version>.vsix
-code --install-extension ue-save-preview-0.1.0.vsix
+code --install-extension ue-save-preview-0.2.0.vsix
 ```
-
-To build UeSaveConverter from source instead:
-`git clone --recursive https://github.com/CrystalFerrai/UeSaveConverter`, then `dotnet publish -c Release`, then point
-`ueSave.converterPath` at the output.
 
 ## Licenses
 
-This extension is MIT licensed. UeSaveConverter ships under its own license (`bin/UeSaveConverter/license.txt`).
+This extension is MIT licensed. The vendored UeSaveConverter / UeSaveGame are Apache 2.0 (`converter/license.txt`).

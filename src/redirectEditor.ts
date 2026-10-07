@@ -49,8 +49,9 @@ export class RedirectEditorProvider implements vscode.CustomReadonlyEditorProvid
 			panel.webview.html = page(`
 				<h2>Couldn't convert this save to JSON</h2>
 				<p class="err">${escape(message)}</p>
-				<p class="muted">Not every game's saves are supported by UeSaveConverter (custom serialisation, encryption or
-				compression, or a non-GVAS file that just uses the .sav extension).</p>
+				<p class="muted">Unknown data inside a normal Unreal save is kept as raw bytes, so this usually means the file
+				isn't a plain GVAS save: the game wraps it in its own encrypted, compressed or custom format, or it's an
+				unrelated file that just uses the .sav extension.</p>
 				<div class="buttons">${buttons}</div>
 				${err?.output ? `<pre>${escape(err.output)}</pre>` : ""}`);
 		}

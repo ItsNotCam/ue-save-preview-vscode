@@ -2,7 +2,7 @@
   "name": "ue-save-preview",
   "displayName": "Unreal Save Preview",
   "description": "Open Unreal Engine .sav files as editable JSON (via UeSaveConverter).",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "publisher": "ItsNotCam",
   "license": "MIT",
   "repository": {
@@ -107,12 +107,12 @@
     }
   },
   "scripts": {
-    "fetch-converter": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/fetch-converter.ps1 -NoPause",
+    "build-converter": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build-converter.ps1 -NoPause",
     "build": "esbuild src/extension.ts --bundle --platform=node --format=cjs --external:vscode --outfile=dist/extension.js --sourcemap",
     "watch": "npm run build -- --watch",
     "typecheck": "tsc --noEmit",
     "vscode:prepublish": "npm run typecheck && esbuild src/extension.ts --bundle --platform=node --format=cjs --external:vscode --outfile=dist/extension.js --minify",
-    "test": "npm run build && node test/runTest.js",
+    "test": "npm run build && node test/roundtrip.js && node test/runTest.js",
     "package": "vsce package"
   },
   "devDependencies": {
