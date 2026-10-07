@@ -1,0 +1,126 @@
+{
+  "name": "ue-save-preview",
+  "displayName": "Unreal Save Preview",
+  "description": "Open Unreal Engine .sav files as editable JSON (via UeSaveConverter).",
+  "version": "0.1.0",
+  "publisher": "ItsNotCam",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ItsNotCam/ue-save-preview-vscode"
+  },
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "main": "./dist/extension.js",
+  "activationEvents": [
+    "onFileSystem:uesav"
+  ],
+  "contributes": {
+    "customEditors": [
+      {
+        "viewType": "ueSave.redirect",
+        "displayName": "Unreal Save (JSON)",
+        "selector": [
+          {
+            "filenamePattern": "*.sav"
+          }
+        ],
+        "priority": "default"
+      }
+    ],
+    "commands": [
+      {
+        "command": "ueSave.openAsJson",
+        "title": "Open Unreal Save as JSON",
+        "category": "UE Save"
+      },
+      {
+        "command": "ueSave.exportJson",
+        "title": "Export Unreal Save to .sav.json",
+        "category": "UE Save"
+      },
+      {
+        "command": "ueSave.revealOriginal",
+        "title": "Reveal Original .sav",
+        "category": "UE Save"
+      }
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "ueSave.openAsJson",
+          "when": "resourceExtname == .sav",
+          "group": "navigation@20"
+        },
+        {
+          "command": "ueSave.exportJson",
+          "when": "resourceExtname == .sav",
+          "group": "navigation@21"
+        }
+      ],
+      "editor/title/context": [
+        {
+          "command": "ueSave.revealOriginal",
+          "when": "resourceScheme == uesav"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "ueSave.revealOriginal",
+          "when": "resourceScheme == uesav"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Unreal Save Preview",
+      "properties": {
+        "ueSave.converterPath": {
+          "type": "string",
+          "default": "",
+          "description": "Path to UeSaveConverter.exe (or .dll). Leave empty to use the copy bundled with the extension."
+        },
+        "ueSave.backup": {
+          "type": "string",
+          "enum": [
+            "once",
+            "every",
+            "off"
+          ],
+          "enumDescriptions": [
+            "Before the first save, copy the original to <name>.sav.bak and never overwrite that backup.",
+            "Before every save, copy the current file to <name>.sav.<timestamp>.bak.",
+            "Do not create backups."
+          ],
+          "default": "once",
+          "description": "How to back up the .sav before writing edited JSON back into it."
+        },
+        "ueSave.timeoutSeconds": {
+          "type": "number",
+          "default": 60,
+          "description": "How long a single conversion may run before it is killed."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "fetch-converter": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/fetch-converter.ps1 -NoPause",
+    "build": "esbuild src/extension.ts --bundle --platform=node --format=cjs --external:vscode --outfile=dist/extension.js --sourcemap",
+    "watch": "npm run build -- --watch",
+    "typecheck": "tsc --noEmit",
+    "vscode:prepublish": "npm run typecheck && esbuild src/extension.ts --bundle --platform=node --format=cjs --external:vscode --outfile=dist/extension.js --minify",
+    "test": "npm run build && node test/runTest.js",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@types/vscode": "^1.90.0",
+    "@vscode/test-electron": "^2.5.2",
+    "@vscode/vsce": "^3.2.0",
+    "esbuild": "^0.24.0",
+    "typescript": "^5.6.0"
+  }
+}
